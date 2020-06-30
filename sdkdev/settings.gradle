@@ -1,0 +1,5 @@
+rootProject.name = "sdkdev"
+
+include ':app'
+include ':sdk'
+include ':spoofer'

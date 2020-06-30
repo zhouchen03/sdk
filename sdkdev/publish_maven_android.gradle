@@ -1,0 +1,108 @@
+apply plugin: 'maven-publish'
+
+task androidSourcesJar(type: Jar) {
+  from android.sourceSets.main.java.srcDirs
+  archiveClassifier = 'sources'
+}
+
+//task javadoc(type: Javadoc) {
+//  source = android.sourceSets.main.java.srcDirs
+//  classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+//  destinationDir = file("../javadoc/")
+//  failOnError false
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//  from javadoc.destinationDir
+//  archiveClassifier = 'javadoc'
+//}
+
+project.afterEvaluate {
+  publishing {
+    publications {
+      mavenDebugAAR(MavenPublication) {
+
+        groupId rootProject.ext.sdkMavenGroupId
+        setVersion(project.libVersion)
+
+        artifact(bundleDebugAar)
+        artifact androidSourcesJar
+        //artifact javadocJar
+
+        pom.withXml {
+          def dependenciesNode = asNode().appendNode('dependencies')
+          configurations.api.allDependencies.each {
+            if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
+              def dependencyNode = dependenciesNode.appendNode('dependency')
+              dependencyNode.appendNode('groupId', it.group)
+              dependencyNode.appendNode('artifactId', it.name)
+              if (it.name.contains('-java')) {
+                dependencyNode.appendNode('version', it.version)
+              } else {
+                dependencyNode.appendNode('version', it.version)
+              }
+              //If there are any exclusions in dependency
+              if (it.excludeRules.size() > 0) {
+                def exclusionsNode = dependencyNode.appendNode('exclusions')
+                it.excludeRules.each { rule ->
+                  def exclusionNode = exclusionsNode.appendNode('exclusion')
+                  exclusionNode.appendNode('groupId', rule.group)
+                  exclusionNode.appendNode('artifactId', rule.module)
+                }
+              }
+            }
+          }
+        }
+      }
+      mavenReleaseAAR(MavenPublication) {
+        groupId rootProject.ext.sdkMavenGroupId
+        setVersion(project.libVersion)
+
+        artifact(bundleReleaseAar)
+        artifact androidSourcesJar
+
+        pom.withXml {
+          def dependenciesNode = asNode().appendNode('dependencies')
+          configurations.api.allDependencies.each {
+            if (it.group != null && (it.name != null || "unspecified".equals(it.name)) && it.version != null) {
+              def dependencyNode = dependenciesNode.appendNode('dependency')
+              dependencyNode.appendNode('groupId', it.group)
+              dependencyNode.appendNode('artifactId', it.name)
+              dependencyNode.appendNode('version', it.version)
+
+              //If there are any exclusions in dependency
+              if (it.excludeRules.size() > 0) {
+                def exclusionsNode = dependencyNode.appendNode('exclusions')
+                it.excludeRules.each { rule ->
+                  def exclusionNode = exclusionsNode.appendNode('exclusion')
+                  exclusionNode.appendNode('groupId', rule.group)
+                  exclusionNode.appendNode('artifactId', rule.module)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    repositories {
+      maven {
+        if (project.libVersion.toString().endsWith("-SNAPSHOT")) {
+          url = project.ext.sdkNexusSnapshotsUrl
+        } else {
+          url = project.ext.sdkNexusUrl
+        }
+        if (url.toString().startsWith("http://localhost:8081/")) {
+          credentials(PasswordCredentials) {
+            username project.auth['localname']
+            password project.auth['localpassword']
+          }
+        } else {
+          credentials(PasswordCredentials) {
+            username project.auth['mavenname']
+            password project.auth['mavenpassword']
+          }
+        }
+      }
+    }
+  }
+}

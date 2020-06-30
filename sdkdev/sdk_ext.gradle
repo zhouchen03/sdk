@@ -1,0 +1,22 @@
+def keystorePropertiesFile = rootProject.file("../keystore/config.properties")
+def keystoreProperties = new Properties()
+
+// Load your keystore.properties file into the keystoreProperties object.
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+ext {
+    kotlin_version                      = "1.3.72"
+
+    auth                                = keystoreProperties
+    sdkMavenGroupId                     = "com.example.sdk.client.android"
+
+    sdkNexusUrl                         = "http://localhost:8081/nexus/content/repositories/releases/"
+    sdkNexusSnapshotsUrl                = "http://localhost:8081/nexus/content/repositories/snapshots/"
+    sdkNexusRepositories                = "http://localhost:8081/nexus/content/repositories/"
+
+    sdkVersion                          = "1.0.0"
+    spooferVersion                      = "1.0.0"
+
+    sdk                                 = "${sdkMavenGroupId}:sdk:${sdkVersion}"
+    spoofer                             = "${sdkMavenGroupId}:spoofer:${spooferVersion}"
+}

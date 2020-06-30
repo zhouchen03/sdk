@@ -1,0 +1,9 @@
+{
+  "users" : [
+    {
+      "id": 0,
+      "name": "Male User",
+      "avatar": "https://img.icons8.com/cotton/64/000000/user-male-circle.png"
+    }
+  ]
+}

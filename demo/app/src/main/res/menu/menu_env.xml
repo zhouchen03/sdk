@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:v7="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_env_settings"
+        v7:showAsAction="always"
+        android:visible="true"
+        android:title="@string/test_feature_on"/>
+</menu>

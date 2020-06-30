@@ -1,0 +1,24 @@
+rootProject.name = "demo"
+include ':app'
+
+fileTree('.') {
+    include '**/*.gradle'
+    exclude 'build.gradle' // Exclude the root files.
+    exclude 'settings.gradle'
+}
+.collect { relativePath(it.parent).replace(File.separator, ':') }
+.each {
+    include(it)
+}
+
+includeBuild('../sdkdev/sdk') {
+    dependencySubstitution {
+        substitute module('com.example.sdk.client.android:sdk') with project(':')
+    }
+}
+
+includeBuild('../sdkdev/spoofer') {
+    dependencySubstitution {
+        substitute module('com.example.sdk.client.android:spoofer') with project(':')
+    }
+}
